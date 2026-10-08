@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Year 3 Science: The Solar System - SK Puteri</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        space: {
+                            dark: '#0B0D1B',
+                            card: '#161936',
+                            accent: '#FFD166',
+                            purple: '#7209B7',
+                            blue: '#4361EE',
+                            pink: '#F72585',
+                            cyan: '#4CC9F0'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(255, 209, 102, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(255, 209, 102, 0.8)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0B0D1B;
+            color: #FFFFFF;
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+
+        /* Starry background canvas styling */
+        #starsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0D1B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4361EE;
+            border-radius: 4px;
+        }
+
+        .space-card {
+            background: rgba(22, 25, 54, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-space {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-space:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        .btn-space:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Planet visual orbits */
+        .orbit-line {
+            border: 1.5px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* Drag and Drop items */
+        .draggable-planet {
+            cursor: grab;
+            transition: transform 0.15s ease;
+        }
+        .draggable-planet:active {
+            cursor: grabbing;
+            transform: scale(1.08);
+        }
+
+        /* Pulse highlight */
+        .glow-gold {
+            box-shadow: 0 0 20px rgba(255, 209, 102, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative text-gray-100">
+
+    <!-- Dynamic Star Background -->
+    <canvas id="starsCanvas"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="relative z-20 bg-space-dark/80 backdrop-blur-md border-b border-white/10 px-4 py-3 sticky top-0">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <!-- Branding -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="goToSection(1)">
+                <div class="bg-gradient-to-tr from-amber-400 to-orange-500 p-2 rounded-xl text-space-dark font-bold text-xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid font-bold fa-user-astronaut"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg md:text-xl text-amber-300 leading-none">SK PUTERI</h1>
+                    <p class="text-xs text-blue-200">Year 3 Science • Teacher Maria A. Rachman</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar & Sound Controls -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex flex-col items-end min-w-[140px]">
+                    <span id="progressText" class="text-xs font-semibold text-amber-300">Section 1 of 8</span>
+                    <div class="w-32 bg-gray-700 h-2.5 rounded-full overflow-hidden mt-1 border border-white/10">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-amber-400 h-full w-12 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <!-- Audio Toggle Button -->
+                <button id="audioBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-full bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/30 text-xs sm:text-sm font-bold flex items-center gap-2 transition text-amber-300">
+                    <i id="audioIcon" class="fa-solid fa-volume-xmark text-red-400"></i>
+                    <span id="audioText">SOUND OFF</span>
+                </button>
+
+                <!-- Home Button -->
+                <button onclick="goToSection(1)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition text-sm" title="Return to Start">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 py-6 flex-grow w-full flex flex-col justify-center">
+
+        <!-- SECTION 1: WELCOME SCREEN -->
+        <section id="section1" class="section-block text-center py-6 space-y-6">
+            <div class="space-card p-6 md:p-10 max-w-3xl mx-auto relative overflow-hidden border-2 border-amber-400/30">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-600/20 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="animate-float inline-block mb-3">
+                    <span class="text-6xl md:text-8xl">🚀</span>
+                </div>
+
+                <div class="inline-block px-4 py-1 rounded-full bg-amber-400/10 border border-amber-400/40 text-amber-300 text-sm font-semibold mb-2">
+                    🌟 YEAR 3 DIGITAL SCIENCE LESSON
+                </div>
+
+                <h1 class="font-display text-3xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 tracking-wide">
+                    🌌 WELCOME, YOUNG ASTRONAUT!
+                </h1>
+
+                <p class="text-lg md:text-xl text-blue-100 max-w-xl mx-auto leading-relaxed pt-2">
+                    "Hello, young scientist! Today, we are going on an exciting space journey through our <span class="text-amber-300 font-bold">Solar System</span>!"
+                </p>
+
+                <div class="bg-space-dark/60 p-4 rounded-xl max-w-md mx-auto my-6 border border-white/10 flex items-center justify-center gap-4">
+                    <div class="text-3xl">👩‍🏫</div>
+                    <div class="text-left">
+                        <div class="font-bold text-amber-300 text-sm">SK PUTERI</div>
+                        <div class="text-xs text-gray-300">Prepared by: <span class="text-white font-semibold">Teacher Maria A. Rachman</span></div>
+                        <div class="text-[11px] text-blue-300">Self-Paced PDPR Learning Module</div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="startJourney()" class="btn-space px-8 py-4 bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 text-space-dark font-display font-bold text-xl sm:text-2xl rounded-2xl shadow-xl hover:shadow-amber-500/50 flex items-center gap-3 mx-auto">
+                        <span>🚀 START JOURNEY</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: MEET THE 8 PLANETS -->
+        <section id="section2" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                    <div>
+                        <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 2</div>
+                        <h2 class="font-display text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+                            <span>🪐 Meet the 8 Planets</span>
+                        </h2>
+                    </div>
+                    <p class="text-sm text-blue-200">Tap or click any planet to learn fun facts about it!</p>
+                </div>
+
+                <!-- Interactive Solar System Rack -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3 text-center my-6">
+                    <!-- Sun -->
+                    <div onclick="selectPlanet('sun')" class="cursor-pointer p-3 rounded-xl bg-amber-500/20 border-2 border-amber-400 hover:bg-amber-500/30 transition transform hover:-translate-y-1">
+                        <div class="text-4xl md:text-5xl my-1 animate-pulse">☀️</div>
+                        <div class="font-display font-bold text-amber-300 text-sm">SUN</div>
+                        <div class="text-[10px] text-amber-200">Center Star</div>
+                    </div>
+
+                    <!-- 8 Planets -->
+                    <div onclick="selectPlanet('mercury')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🪨</div>
+                        <div class="font-display font-bold text-xs">1. Mercury</div>
+                    </div>
+                    <div onclick="selectPlanet('venus')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🟡</div>
+                        <div class="font-display font-bold text-xs">2. Venus</div>
+                    </div>
+                    <div onclick="selectPlanet('earth')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🌍</div>
+                        <div class="font-display font-bold text-xs">3. Earth</div>
+                    </div>
+                    <div onclick="selectPlanet('mars')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🔴</div>
+                        <div class="font-display font-bold text-xs">4. Mars</div>
+                    </div>
+                    <div onclick="selectPlanet('jupiter')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🟠</div>
+                        <div class="font-display font-bold text-xs">5. Jupiter</div>
+                    </div>
+                    <div onclick="selectPlanet('saturn')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🪐</div>
+                        <div class="font-display font-bold text-xs">6. Saturn</div>
+                    </div>
+                    <div onclick="selectPlanet('uranus')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🌀</div>
+                        <div class="font-display font-bold text-xs">7. Uranus</div>
+                    </div>
+                    <div onclick="selectPlanet('neptune')" class="cursor-pointer p-3 rounded-xl bg-space-dark/80 border border-white/20 hover:border-amber-400 transition transform hover:-translate-y-1">
+                        <div class="text-3xl my-2">🔵</div>
+                        <div class="font-display font-bold text-xs">8. Neptune</div>
+                    </div>
+                </div>
+
+                <!-- Planet Info Display Box -->
+                <div id="planetDetailBox" class="bg-space-dark/90 p-5 md:p-6 rounded-2xl border-2 border-amber-400/50 flex flex-col md:flex-row items-center gap-6 min-h-[160px] transition-all">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PUT PLANETS IN ORDER -->
+        <section id="section3" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4 border-b border-white/10 pb-3">
+                    <div>
+                        <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 3 Activity</div>
+                        <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🧩 Put the Planets in Order</h2>
+                    </div>
+                    <p class="text-sm text-blue-200">Tap the planets below in the correct order from the Sun!</p>
+                </div>
+
+                <div class="bg-space-dark/50 p-4 rounded-xl border border-white/10 mb-4 flex items-center gap-3">
+                    <span class="text-3xl">☀️</span>
+                    <div class="text-sm text-amber-200">
+                        <strong>Mission Goal:</strong> Tap the planets from the pool below to place them in order from <strong>1st (Closest to Sun)</strong> to <strong>8th (Farthest from Sun)</strong>!
+                    </div>
+                </div>
+
+                <!-- Slots Container -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6" id="orderSlotsContainer">
+                    <!-- 8 Slots created dynamically -->
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="orderFeedback" class="hidden p-4 rounded-xl text-center font-bold text-lg mb-4"></div>
+
+                <!-- Planets Pool -->
+                <div class="space-card p-4 bg-indigo-950/40">
+                    <div class="text-xs font-bold text-gray-300 mb-3 text-center uppercase tracking-wider">Tap a planet to place it in the next slot:</div>
+                    <div class="flex flex-wrap justify-center gap-2" id="orderPoolContainer">
+                        <!-- Shuffled planet buttons created dynamically -->
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4 mt-6">
+                    <button onclick="resetOrderGame()" class="px-5 py-2.5 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm flex items-center gap-2 transition">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Reset Order</span>
+                    </button>
+                    <button onclick="checkOrderGame()" class="btn-space px-8 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-space-dark font-display font-bold text-base flex items-center gap-2 transition shadow-lg">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Check My Answer</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: WHAT IS AN ORBIT? -->
+        <section id="section4" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="mb-4 border-b border-white/10 pb-3">
+                    <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 4</div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🔭 What is an Orbit?</h2>
+                </div>
+
+                <!-- Orbit Visual Canvas / Simulation -->
+                <div class="relative bg-space-dark rounded-2xl border border-blue-500/30 overflow-hidden p-4 text-center">
+                    <div class="absolute top-3 left-3 z-10 bg-space-dark/80 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold text-amber-300">
+                        ☀️ Solar System Orbit Simulator
+                    </div>
+
+                    <!-- Orbit Canvas -->
+                    <div class="relative w-full h-[320px] sm:h-[380px] flex items-center justify-center overflow-hidden" id="orbitCanvasContainer">
+                        <canvas id="orbitCanvas" class="w-full h-full"></canvas>
+                    </div>
+
+                    <!-- Animation Control Button -->
+                    <div class="mt-2 flex justify-center gap-3">
+                        <button id="orbitToggleBtn" onclick="toggleOrbitAnimation()" class="btn-space px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-display font-bold text-sm sm:text-base rounded-xl shadow-md flex items-center gap-2">
+                            <i id="orbitPlayIcon" class="fa-solid fa-play"></i>
+                            <span id="orbitPlayText">▶ WATCH THE PLANETS MOVE</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Clear Simple Explanation -->
+                <div class="space-card p-5 bg-indigo-900/30 border-amber-400/40 mt-4 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <span class="text-3xl">💡</span>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-amber-300">Simple Science Fact:</h3>
+                            <p class="text-base text-gray-100 leading-relaxed">
+                                "An <span class="text-amber-300 font-bold underline">orbit</span> is the path a planet follows as it moves around the Sun."
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Concept Chain -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2 text-center font-display font-bold text-sm sm:text-lg">
+                        <div class="bg-amber-500/20 border border-amber-400 px-3 py-2 rounded-xl text-amber-300">🪐 PLANET</div>
+                        <div class="text-blue-400">➔</div>
+                        <div class="bg-purple-500/20 border border-purple-400 px-3 py-2 rounded-xl text-purple-300">🌀 REVOLVES</div>
+                        <div class="text-blue-400">➔</div>
+                        <div class="bg-orange-500/20 border border-orange-400 px-3 py-2 rounded-xl text-orange-300">☀️ AROUND THE SUN</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: ROTATE OR REVOLVE? -->
+        <section id="section5" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="mb-4 border-b border-white/10 pb-3">
+                    <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 5</div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🔄 Rotate or Revolve?</h2>
+                    <p class="text-sm text-blue-200">Learn the difference between two important space movements!</p>
+                </div>
+
+                <!-- Comparison Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- ROTATE Card -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-2 border-cyan-400/50 flex flex-col items-center text-center space-y-2">
+                        <div class="text-5xl my-2 animate-spin-slow">🌐</div>
+                        <h3 class="font-display font-bold text-2xl text-cyan-300">🔄 ROTATE</h3>
+                        <p class="text-base text-gray-200 font-semibold">"A planet spins around itself."</p>
+                        <span class="text-xs text-cyan-200 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-400/30">Like a spinning top!  spinning in place</span>
+                    </div>
+
+                    <!-- REVOLVE Card -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-2 border-pink-400/50 flex flex-col items-center text-center space-y-2">
+                        <div class="text-5xl my-2 animate-bounce">🪐☀️</div>
+                        <h3 class="font-display font-bold text-2xl text-pink-300">🪐 REVOLVE</h3>
+                        <p class="text-base text-gray-200 font-semibold">"A planet moves around the Sun."</p>
+                        <span class="text-xs text-pink-200 bg-pink-950/60 px-3 py-1 rounded-full border border-pink-400/30">Moving along its orbit path!</span>
+                    </div>
+                </div>
+
+                <!-- 3 Easy Interactive Questions -->
+                <div class="space-y-4">
+                    <h3 class="font-display font-bold text-lg text-amber-300">Quick Check Questions:</h3>
+
+                    <!-- Q1 -->
+                    <div class="bg-space-dark/60 p-4 rounded-xl border border-white/10 space-y-2">
+                        <p class="font-semibold text-sm sm:text-base">1. Earth spins around itself on its axis. Is it:</p>
+                        <div class="flex flex-wrap gap-3" id="rrQ1Container">
+                            <button onclick="checkRR(1, 'rotate', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">A. Rotate 🔄</button>
+                            <button onclick="checkRR(1, 'revolve', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">B. Revolve 🪐</button>
+                        </div>
+                        <div id="rrQ1Feedback" class="text-xs font-bold pt-1 hidden"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-space-dark/60 p-4 rounded-xl border border-white/10 space-y-2">
+                        <p class="font-semibold text-sm sm:text-base">2. Earth moves all the way around the Sun. Is it:</p>
+                        <div class="flex flex-wrap gap-3" id="rrQ2Container">
+                            <button onclick="checkRR(2, 'rotate', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">A. Rotate 🔄</button>
+                            <button onclick="checkRR(2, 'revolve', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">B. Revolve 🪐</button>
+                        </div>
+                        <div id="rrQ2Feedback" class="text-xs font-bold pt-1 hidden"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-space-dark/60 p-4 rounded-xl border border-white/10 space-y-2">
+                        <p class="font-semibold text-sm sm:text-base">3. A planet following its orbit path around the Sun is:</p>
+                        <div class="flex flex-wrap gap-3" id="rrQ3Container">
+                            <button onclick="checkRR(3, 'revolve', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">A. Revolving 🪐</button>
+                            <button onclick="checkRR(3, 'rotate', this)" class="px-5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition">B. Rotating 🔄</button>
+                        </div>
+                        <div id="rrQ3Feedback" class="text-xs font-bold pt-1 hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: CLOSER OR FARTHER FROM THE SUN -->
+        <section id="section6" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="mb-4 border-b border-white/10 pb-3">
+                    <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 6</div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🌡️ Distance and Solar Energy</h2>
+                </div>
+
+                <!-- Distance Concept Comparison Visual -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-orange-950/70 to-red-950/70 p-5 rounded-2xl border-2 border-orange-500/50 flex items-center gap-4">
+                        <div class="text-5xl">☀️🔥</div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-orange-300">☀️ CLOSER TO THE SUN</h3>
+                            <p class="text-sm text-gray-200 mt-1">Generally receives <span class="text-orange-300 font-bold">MORE heat</span> and solar energy.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-950/70 to-indigo-950/70 p-5 rounded-2xl border-2 border-blue-500/50 flex items-center gap-4">
+                        <div class="text-5xl">🌌❄️</div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-cyan-300">🌌 FARTHER FROM THE SUN</h3>
+                            <p class="text-sm text-gray-200 mt-1">Generally receives <span class="text-cyan-300 font-bold">LESS heat</span> and solar energy.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Question -->
+                <div class="bg-space-dark/80 p-5 rounded-2xl border border-white/10 space-y-3 mb-6">
+                    <p class="font-display font-bold text-base sm:text-lg text-amber-300">
+                        ❓ Question: Which planet generally receives MORE heat from the Sun?
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3" id="heatQContainer">
+                        <button onclick="checkHeatQ('closer', this)" class="px-5 py-3 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition text-left flex items-center gap-3">
+                            <span class="text-xl">🔥</span>
+                            <span>A. A planet closer to the Sun</span>
+                        </button>
+                        <button onclick="checkHeatQ('farther', this)" class="px-5 py-3 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-400/40 text-sm font-bold transition text-left flex items-center gap-3">
+                            <span class="text-xl">❄️</span>
+                            <span>B. A planet farther from the Sun</span>
+                        </button>
+                    </div>
+                    <div id="heatQFeedback" class="text-sm font-bold pt-1 hidden"></div>
+                </div>
+
+                <!-- WOW FACT BOX -->
+                <div class="bg-gradient-to-r from-purple-900/80 via-pink-900/80 to-amber-900/80 p-5 rounded-2xl border-2 border-amber-400/70 shadow-xl flex items-start gap-4">
+                    <div class="text-4xl animate-bounce">⭐</div>
+                    <div>
+                        <div class="font-display font-bold text-amber-300 text-lg uppercase tracking-wider">⭐ WOW FACT!</div>
+                        <p class="text-base text-white mt-1 leading-relaxed">
+                            <span class="text-amber-300 font-bold">Venus is the hottest planet</span> in our Solar System because its <span class="text-pink-300 font-bold">thick atmosphere traps heat</span> like a thick blanket!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: SPACE DETECTIVE -->
+        <section id="section7" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-white/10 pb-3">
+                    <div>
+                        <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Section 7 Challenge</div>
+                        <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🔎 Space Detective Challenge</h2>
+                    </div>
+                    <div class="text-xs font-bold bg-amber-400/20 text-amber-300 px-3 py-1 rounded-full border border-amber-400/30">
+                        5 Mini Clues to Solve!
+                    </div>
+                </div>
+
+                <!-- Detective Cards Container -->
+                <div class="space-y-4" id="detectiveContainer">
+                    <!-- Q1 -->
+                    <div class="bg-space-dark/80 p-4 rounded-xl border border-white/10 space-y-2">
+                        <div class="font-bold text-sm text-amber-300">🕵️ Clue 1: How many planets are there in our Solar System?</div>
+                        <div class="flex flex-wrap gap-2" id="detQ1">
+                            <button onclick="checkDet(1, '8', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">8 Planets</button>
+                            <button onclick="checkDet(1, '9', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">9 Planets</button>
+                            <button onclick="checkDet(1, '10', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">10 Planets</button>
+                        </div>
+                        <div id="detF1" class="text-xs font-bold hidden"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-space-dark/80 p-4 rounded-xl border border-white/10 space-y-2">
+                        <div class="font-bold text-sm text-amber-300">🕵️ Clue 2: Which planet is closest to the Sun?</div>
+                        <div class="flex flex-wrap gap-2" id="detQ2">
+                            <button onclick="checkDet(2, 'mercury', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Mercury</button>
+                            <button onclick="checkDet(2, 'earth', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Earth</button>
+                            <button onclick="checkDet(2, 'neptune', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Neptune</button>
+                        </div>
+                        <div id="detF2" class="text-xs font-bold hidden"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-space-dark/80 p-4 rounded-xl border border-white/10 space-y-2">
+                        <div class="font-bold text-sm text-amber-300">🕵️ Clue 3: Which planet do we live on?</div>
+                        <div class="flex flex-wrap gap-2" id="detQ3">
+                            <button onclick="checkDet(3, 'mars', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Mars</button>
+                            <button onclick="checkDet(3, 'earth', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Earth 🌍</button>
+                            <button onclick="checkDet(3, 'jupiter', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">Jupiter</button>
+                        </div>
+                        <div id="detF3" class="text-xs font-bold hidden"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bg-space-dark/80 p-4 rounded-xl border border-white/10 space-y-2">
+                        <div class="font-bold text-sm text-amber-300">🕵️ Clue 4: What does a planet revolve around?</div>
+                        <div class="flex flex-wrap gap-2" id="detQ4">
+                            <button onclick="checkDet(4, 'moon', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">The Moon</button>
+                            <button onclick="checkDet(4, 'sun', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">The Sun ☀️</button>
+                            <button onclick="checkDet(4, 'clouds', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">The Clouds</button>
+                        </div>
+                        <div id="detF4" class="text-xs font-bold hidden"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="bg-space-dark/80 p-4 rounded-xl border border-white/10 space-y-2">
+                        <div class="font-bold text-sm text-amber-300">🕵️ Clue 5: What is the name of the path a planet follows around the Sun?</div>
+                        <div class="flex flex-wrap gap-2" id="detQ5">
+                            <button onclick="checkDet(5, 'orbit', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">An Orbit ⭕</button>
+                            <button onclick="checkDet(5, 'road', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">A Highway</button>
+                            <button onclick="checkDet(5, 'wave', this)" class="px-4 py-2 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-sm font-bold border border-indigo-400/30">A Wave</button>
+                        </div>
+                        <div id="detF5" class="text-xs font-bold hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 8: FINAL SPACE MISSION QUIZ -->
+        <section id="section8" class="section-block hidden space-y-6">
+            <div class="space-card p-6 md:p-8">
+                <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                    <div>
+                        <div class="text-amber-400 text-xs font-bold uppercase tracking-wider">Final Mission</div>
+                        <h2 class="font-display text-2xl md:text-3xl font-bold text-white">🏆 Final Space Mission Quiz</h2>
+                    </div>
+                    <div id="quizCounter" class="text-xs font-bold bg-indigo-600/40 border border-indigo-400/40 px-3 py-1.5 rounded-xl">
+                        Question 1 of 10
+                    </div>
+                </div>
+
+                <!-- Quiz Interactive Container -->
+                <div id="quizContainer" class="space-y-6">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Final Score Certificate Box (Hidden initially) -->
+                <div id="quizResultBox" class="hidden text-center space-y-6 py-4">
+                    <!-- Certificate content populated dynamically -->
+                </div>
+            </div>
+
+            <!-- TEACHER & SCHOOL INFORMATION FOOTER CARD -->
+            <div class="space-card p-6 bg-space-dark/90 border border-amber-400/30 mt-8">
+                <div class="flex items-center gap-3 border-b border-white/10 pb-3 mb-3">
+                    <span class="text-2xl">👩‍🏫</span>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-amber-300">Teacher & PDPR Lesson Information</h3>
+                        <p class="text-xs text-gray-300">SK Puteri • Year 3 Science DSKP Alignment</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-200">
+                    <div>
+                        <strong class="text-amber-200">Teacher:</strong> Maria A. Rachman<br>
+                        <strong class="text-amber-200">School:</strong> SK Puteri<br>
+                        <strong class="text-amber-200">Subject:</strong> Year 3 Science (Sains Tahun 3)<br>
+                        <strong class="text-amber-200">Topic:</strong> 9.0 The Solar System (Sistem Suria)
+                    </div>
+                    <div>
+                        <strong class="text-amber-200">Learning Objectives:</strong>
+                        <ul class="list-disc list-inside space-y-0.5 mt-1 text-gray-300">
+                            <li>Name and sequence the 8 planets in order from the Sun.</li>
+                            <li>Explain that planets revolve around the Sun in their own orbits.</li>
+                            <li>Differentiate between rotation and revolution.</li>
+                            <li>Relate planet distance from Sun with solar heat received.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER NAVIGATION CONTROLS -->
+    <footer class="relative z-20 bg-space-dark/90 border-t border-white/10 py-3 px-4 mt-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center gap-3">
+            <button id="prevBtn" onclick="changeSection(-1)" class="px-5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold text-sm flex items-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back</span>
+            </button>
+
+            <!-- Quick Section Indicator Dots -->
+            <div class="hidden md:flex items-center gap-1.5" id="dotsContainer">
+                <!-- 8 dots generated by JS -->
+            </div>
+
+            <button id="nextBtn" onclick="changeSection(1)" class="btn-space px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-space-dark font-display font-bold text-sm sm:text-base flex items-center gap-2 transition shadow-lg">
+                <span>Next</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        let currentSection = 1;
+        const totalSections = 8;
+        let audioEnabled = false;
+        let audioCtx = null;
+        let ambientOsc1 = null;
+        let ambientOsc2 = null;
+        let ambientGain = null;
+
+        // Data for Planets
+        const planetData = {
+            sun: {
+                name: "☀️ THE SUN",
+                pos: "Center of Solar System",
+                fact: "The Sun is a huge star at the centre of our Solar System. All planets revolve around it!",
+                distance: "Center Star",
+                emoji: "☀️",
+                color: "text-amber-300"
+            },
+            mercury: {
+                name: "🪨 MERCURY",
+                pos: "1st Planet from the Sun",
+                fact: "Mercury is the smallest planet and closest to the Sun!",
+                distance: "Closest to Sun",
+                emoji: "🪨",
+                color: "text-gray-300"
+            },
+            venus: {
+                name: "🟡 VENUS",
+                pos: "2nd Planet from the Sun",
+                fact: "Venus is the hottest planet because its thick atmosphere traps heat like a blanket!",
+                distance: "Close to Sun",
+                emoji: "🟡",
+                color: "text-amber-400"
+            },
+            earth: {
+                name: "🌍 EARTH",
+                pos: "3rd Planet from the Sun",
+                fact: "Earth is our home planet! It has water, air, and living things.",
+                distance: "3rd position",
+                emoji: "🌍",
+                color: "text-blue-400"
+            },
+            mars: {
+                name: "🔴 MARS",
+                pos: "4th Planet from the Sun",
+                fact: "Mars is called the Red Planet because of its red rusty soil!",
+                distance: "4th position",
+                emoji: "🔴",
+                color: "text-red-400"
+            },
+            jupiter: {
+                name: "🟠 JUPITER",
+                pos: "5th Planet from the Sun",
+                fact: "Jupiter is the biggest planet in our entire Solar System!",
+                distance: "Farther from Sun",
+                emoji: "🟠",
+                color: "text-orange-400"
+            },
+            saturn: {
+                name: "🪐 SATURN",
+                pos: "6th Planet from the Sun",
+                fact: "Saturn is famous for its beautiful big rings made of ice and rock!",
+                distance: "Farther from Sun",
+                emoji: "🪐",
+                color: "text-yellow-200"
+            },
+            uranus: {
+                name: "🌀 URANUS",
+                pos: "7th Planet from the Sun",
+                fact: "Uranus is a cold ice giant that spins sideways!",
+                distance: "Very Far from Sun",
+                emoji: "🌀",
+                color: "text-cyan-300"
+            },
+            neptune: {
+                name: "🔵 NEPTUNE",
+                pos: "8th Planet from the Sun",
+                fact: "Neptune is the farthest planet from the Sun and very cold and windy!",
+                distance: "Farthest from Sun",
+                emoji: "🔵",
+                color: "text-blue-500"
+            }
+        };
+
+        const correctOrder = ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"];
+        let poolOrder = [];
+        let userOrder = [];
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) audioCtx = new AudioCtx();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioEnabled = !audioEnabled;
+            const btnIcon = document.getElementById("audioIcon");
+            const btnText = document.getElementById("audioText");
+
+            if (audioEnabled) {
+                btnIcon.className = "fa-solid fa-volume-high text-green-400";
+                btnText.textContent = "SOUND ON";
+                startAmbientSound();
+                playBeep(523.25, 'sine', 0.15, 0.1);
+            } else {
+                btnIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                btnText.textContent = "SOUND OFF";
+                stopAmbientSound();
+            }
+        }
+
+        function playBeep(freq, type='sine', duration=0.15, vol=0.1) {
+            if (!audioEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        function playSuccessSound() {
+            if (!audioEnabled || !audioCtx) return;
+            // Futuristic cosmic arpeggio (C5, E5, G5, B5, C6)
+            [523.25, 659.25, 783.99, 987.77, 1046.50].forEach((freq, i) => {
+                setTimeout(() => playBeep(freq, 'sine', 0.25, 0.08), i * 70);
+            });
+        }
+
+        function playErrorSound() {
+            if (!audioEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e){}
+        }
+
+        function playWhooshSound() {
+            if (!audioEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.18);
+            } catch(e){}
+        }
+
+        function startAmbientSound() {
+            if (!audioEnabled || !audioCtx) return;
+            try {
+                stopAmbientSound();
+                ambientOsc1 = audioCtx.createOscillator();
+                ambientOsc2 = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                ambientGain = audioCtx.createGain();
+
+                ambientOsc1.type = 'sine';
+                ambientOsc1.frequency.setValueAtTime(65.41, audioCtx.currentTime); // C2 deep space drone
+
+                ambientOsc2.type = 'triangle';
+                ambientOsc2.frequency.setValueAtTime(130.81, audioCtx.currentTime); // C3 harmonic synth tone
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(250, audioCtx.currentTime);
+
+                ambientGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+
+                ambientOsc1.connect(filter);
+                ambientOsc2.connect(filter);
+                filter.connect(ambientGain);
+                ambientGain.connect(audioCtx.destination);
+
+                ambientOsc1.start();
+                ambientOsc2.start();
+            } catch(e){}
+        }
+
+        function stopAmbientSound() {
+            if (ambientOsc1) {
+                try { ambientOsc1.stop(); } catch(e){}
+                ambientOsc1 = null;
+            }
+            if (ambientOsc2) {
+                try { ambientOsc2.stop(); } catch(e){}
+                ambientOsc2 = null;
+            }
+        }
+
+        function initOrderGame() {
+            userOrder = [];
+            poolOrder = shuffleArray(correctOrder);
+            const feedback = document.getElementById('orderFeedback');
+            feedback.className = 'hidden p-4 rounded-xl text-center font-bold text-lg mb-4';
+
+            renderOrderSlots();
+            renderOrderPool();
+        }
+
+        function renderOrderSlots(slotResults = null) {
+            const container = document.getElementById('orderSlotsContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const filledKey = userOrder[i];
+                const slot = document.createElement('div');
+                
+                let borderClass = 'border-gray-600 bg-space-dark/40';
+                let statusBadge = '';
+
+                if (filledKey) {
+                    if (slotResults) {
+                        if (slotResults[i]) {
+                            borderClass = 'border-green-400 bg-green-950/40';
+                            statusBadge = '<span class="text-[10px] text-green-300 font-bold">✓ Correct</span>';
+                        } else {
+                            borderClass = 'border-red-400 bg-red-950/40';
+                            statusBadge = '<span class="text-[10px] text-red-300 font-bold">✗ Wrong</span>';
+                        }
+                    } else {
+                        borderClass = 'border-amber-400 bg-space-dark/90';
+                    }
+                }
+
+                slot.className = `p-2 rounded-xl border-2 ${borderClass} min-h-[90px] flex flex-col items-center justify-center text-center transition`;
+
+                if (filledKey) {
+                    const p = planetData[filledKey];
+                    slot.innerHTML = `
+                        <div class="text-2xl">${p.emoji}</div>
+                        <div class="font-bold text-[11px] text-amber-300 capitalize">${p.name.split(' ')[1] || p.name}</div>
+                        ${statusBadge ? statusBadge : `<button onclick="removeFromOrder(${i})" class="text-[10px] text-red-400 hover:text-red-300 mt-0.5"><i class="fa-solid fa-xmark"></i> Remove</button>`}
+                    `;
+                } else {
+                    slot.innerHTML = `
+                        <div class="text-gray-500 font-display text-xs font-bold">Position ${i + 1}</div>
+                        <div class="text-[10px] text-gray-500">Empty</div>
+                    `;
+                }
+                container.appendChild(slot);
+            }
+        }
+
+        function renderOrderPool() {
+            const pool = document.getElementById('orderPoolContainer');
+            pool.innerHTML = '';
+            
+            // Get unplaced planets from the shuffled pool
+            const unplaced = poolOrder.filter(p => !userOrder.includes(p));
+
+            if (unplaced.length === 0) {
+                pool.innerHTML = '<span class="text-xs text-amber-300 font-semibold">All planets have been placed! Click "Check My Answer" to see if you succeeded!</span>';
+                return;
+            }
+
+            unplaced.forEach(key => {
+                const p = planetData[key];
+                const btn = document.createElement('button');
+                btn.onclick = () => addToOrder(key);
+                btn.className = "btn-space px-3 py-2 rounded-xl bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-400/40 font-bold text-xs flex items-center gap-1.5 transition";
+                btn.innerHTML = `<span>${p.emoji}</span> <span>${p.name.split(' ')[1]}</span>`;
+                pool.appendChild(btn);
+            });
+        }
+
+        function addToOrder(key) {
+            if (userOrder.length < 8) {
+                userOrder.push(key);
+                playWhooshSound();
+                renderOrderSlots();
+                renderOrderPool();
+            }
+        }
+
+        function removeFromOrder(index) {
+            userOrder.splice(index, 1);
+            playWhooshSound();
+            renderOrderSlots();
+            renderOrderPool();
+        }
+
+        function resetOrderGame() {
+            initOrderGame();
+        }
+
+        function checkOrderGame() {
+            const feedback = document.getElementById('orderFeedback');
+            if (userOrder.length < 8) {
+                feedback.className = 'p-3 rounded-xl text-center font-bold text-sm bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 mb-4';
+                feedback.innerHTML = '⚠️ Please place all 8 planets into the slots before checking!';
+                playErrorSound();
+                return;
+            }
+
+            let slotResults = [];
+            let correctCount = 0;
+
+            for (let i = 0; i < 8; i++) {
+                const isSlotCorrect = (userOrder[i] === correctOrder[i]);
+                slotResults.push(isSlotCorrect);
+                if (isSlotCorrect) correctCount++;
+            }
+
+            renderOrderSlots(slotResults);
+
+            if (correctCount === 8) {
+                feedback.className = 'p-4 rounded-xl text-center font-bold text-base bg-green-500/20 text-green-300 border border-green-500/40 mb-4 animate-bounce';
+                feedback.innerHTML = '🌟 MISSION ACCOMPLISHED! You placed all 8 planets in perfect order from the Sun!';
+                playSuccessSound();
+            } else {
+                feedback.className = 'p-4 rounded-xl text-center font-bold text-base bg-red-500/20 text-red-300 border border-red-500/40 mb-4';
+                feedback.innerHTML = `🤔 You got ${correctCount} out of 8 correct! Look at the red marked slots, reset or remove them and try again!`;
+                playErrorSound();
+            }
+        }
+
+        function submitQuiz() {
+            // Calculate Score
+            let score = 0;
+            quizAnswers.forEach((ans, idx) => {
+                if (ans === quizQuestions[idx].answer) {
+                    score += 10;
+                }
+            });
+
+            const container = document.getElementById('quizContainer');
+            const resultBox = document.getElementById('quizResultBox');
+
+            container.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+
+            let title = "";
+            let msg = "";
+            let badge = "";
+
+            if (score >= 90) {
+                title = "🌟 MISSION COMPLETED!";
+                msg = "You are a Solar System Superstar!";
+                badge = "🥇";
+                playSuccessSound();
+            } else if (score >= 70) {
+                title = "🚀 MISSION COMPLETED!";
+                msg = "Keep exploring, young astronaut!";
+                badge = "🥈";
+                playSuccessSound();
+            } else if (score >= 50) {
+                title = "🔭 GOOD EFFORT!";
+                msg = "Let's explore the Solar System again!";
+                badge = "🥉";
+            } else {
+                title = "🌱 KEEP TRYING!";
+                msg = "Every scientist starts by learning!";
+                badge = "🚀";
+            }
+
+            resultBox.innerHTML = `
+                <div class="space-card p-8 bg-gradient-to-b from-indigo-900/90 to-space-dark border-2 border-amber-400 text-center space-y-4 shadow-2xl">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/50 text-amber-300 font-bold text-xs uppercase tracking-widest mb-1">
+                        🏆 MISSION COMPLETED 🏆
+                    </div>
+                    <div class="text-7xl animate-bounce">${badge}</div>
+                    <h3 class="font-display font-bold text-3xl sm:text-4xl text-amber-300">${title}</h3>
+                    <p class="text-xl text-blue-100 font-semibold">${msg}</p>
+                    
+                    <div class="inline-block px-8 py-3 bg-space-dark/80 rounded-2xl border border-amber-400/50 my-2">
+                        <div class="text-xs text-amber-200 font-bold uppercase">Your Final Mission Score</div>
+                        <div class="font-display font-bold text-4xl sm:text-5xl text-amber-300">${score}%</div>
+                    </div>
+
+                    <div class="text-xs text-gray-300">
+                        Lesson Completed • Year 3 Science • SK Puteri
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-4 pt-4">
+                        <button onclick="restartQuiz()" class="px-6 py-3 rounded-xl bg-indigo-700 hover:bg-indigo-600 font-bold text-sm text-white flex items-center gap-2 transition">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>TRY AGAIN</span>
+                        </button>
+                        <button onclick="goToSection(1)" class="btn-space px-8 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-space-dark font-display font-bold text-base flex items-center gap-2 transition shadow-lg">
+                            <i class="fa-solid fa-house"></i>
+                            <span>BACK TO START</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            quizAnswers = new Array(10).fill(null);
+            renderQuiz();
+        }
+
+        function initStarsCanvas() {
+            const canvas = document.getElementById('starsCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            let stars = [];
+            function createStars() {
+                stars = [];
+                const numStars = Math.floor((width * height) / 2500);
+                for (let i = 0; i < numStars; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.5,
+                        alpha: Math.random(),
+                        speed: Math.random() * 0.02 + 0.005
+                    });
+                }
+            }
+
+            function animateStars() {
+                ctx.clearRect(0, 0, width, height);
+                stars.forEach(star => {
+                    star.alpha += star.speed;
+                    if (star.alpha > 1 || star.alpha < 0) {
+                        star.speed = -star.speed;
+                    }
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animateStars);
+            }
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                createStars();
+            });
+
+            createStars();
+            animateStars();
+        }
+
+        function goToSection(sectionNum) {
+            if (sectionNum < 1 || sectionNum > totalSections) return;
+            
+            // Hide all sections
+            for (let i = 1; i <= totalSections; i++) {
+                const sec = document.getElementById(`section${i}`);
+                if (sec) sec.classList.add('hidden');
+            }
+
+            currentSection = sectionNum;
+            const targetSec = document.getElementById(`section${currentSection}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            updateNavigationUI();
+            playWhooshSound();
+
+            // Trigger specific section initializations
+            if (currentSection === 2) {
+                selectPlanet('sun');
+            } else if (currentSection === 3) {
+                initOrderGame();
+            } else if (currentSection === 4) {
+                initOrbitCanvas();
+            } else if (currentSection === 8) {
+                renderQuiz();
+            }
+        }
+
+        function changeSection(direction) {
+            goToSection(currentSection + direction);
+        }
+
+        function startJourney() {
+            if (!audioEnabled) {
+                toggleAudio(); // Option to activate space sound on start
+            }
+            goToSection(2);
+        }
+
+        function updateNavigationUI() {
+            // Update progress text & bar
+            const progText = document.getElementById('progressText');
+            const progBar = document.getElementById('progressBar');
+            if (progText) progText.textContent = `Section ${currentSection} of ${totalSections}`;
+            if (progBar) progBar.style.width = `${(currentSection / totalSections) * 100}%`;
+
+            // Update footer buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (prevBtn) prevBtn.disabled = (currentSection === 1);
+            if (nextBtn) {
+                if (currentSection === totalSections) {
+                    nextBtn.innerHTML = `<span>Finished</span> <i class="fa-solid fa-flag-checkered"></i>`;
+                    nextBtn.onclick = () => goToSection(1);
+                } else {
+                    nextBtn.innerHTML = `<span>Next</span> <i class="fa-solid fa-arrow-right"></i>`;
+                    nextBtn.onclick = () => changeSection(1);
+                }
+            }
+
+            // Update dot indicators
+            const dotsContainer = document.getElementById('dotsContainer');
+            if (dotsContainer) {
+                dotsContainer.innerHTML = '';
+                for (let i = 1; i <= totalSections; i++) {
+                    const dot = document.createElement('button');
+                    dot.onclick = () => goToSection(i);
+                    dot.className = `w-3 h-3 rounded-full transition-all ${i === currentSection ? 'bg-amber-400 w-6' : 'bg-white/20 hover:bg-white/40'}`;
+                    dotsContainer.appendChild(dot);
+                }
+            }
+        }
+
+        function selectPlanet(key) {
+            const detailBox = document.getElementById('planetDetailBox');
+            if (!detailBox || !planetData[key]) return;
+
+            const p = planetData[key];
+            detailBox.innerHTML = `
+                <div class="text-6xl md:text-7xl animate-float flex-shrink-0">${p.emoji}</div>
+                <div class="space-y-2 text-left">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="font-display font-bold text-2xl ${p.color}">${p.name}</h3>
+                        <span class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/20 font-semibold text-amber-200">${p.pos}</span>
+                    </div>
+                    <p class="text-base text-gray-100 leading-relaxed">${p.fact}</p>
+                    <div class="text-xs font-bold text-amber-300 bg-space-dark/60 inline-block px-3 py-1 rounded-lg border border-amber-400/30">
+                        📍 Distance Status: ${p.distance}
+                    </div>
+                </div>
+            `;
+            playBeep(440, 'sine', 0.1, 0.08);
+        }
+
+        let orbitAnimating = false;
+        let orbitAnimationFrame = null;
+
+        function initOrbitCanvas() {
+            const canvas = document.getElementById('orbitCanvas');
+            const container = document.getElementById('orbitCanvasContainer');
+            if (!canvas || !container) return;
+
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawOrbitScene(0);
+        }
+
+        function drawOrbitScene(angleOffset) {
+            const canvas = document.getElementById('orbitCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Sun
+            ctx.fillStyle = '#FFD166';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#FFD166';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            const orbits = [
+                { r: 50, color: '#A0A0A0', size: 5, speed: 1.5, emoji: '🪨' },
+                { r: 85, color: '#E0A96D', size: 7, speed: 1.2, emoji: '🟡' },
+                { r: 120, color: '#4CC9F0', size: 8, speed: 1.0, emoji: '🌍' },
+                { r: 155, color: '#F72585', size: 6, speed: 0.8, emoji: '🔴' }
+            ];
+
+            orbits.forEach(orb => {
+                // Draw Orbit Path Line
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.arc(cx, cy, orb.r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw Planet Position
+                const angle = (angleOffset * orb.speed * 0.02);
+                const px = cx + orb.r * Math.cos(angle);
+                const py = cy + orb.r * Math.sin(angle);
+
+                ctx.fillStyle = orb.color;
+                ctx.beginPath();
+                ctx.arc(px, py, orb.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function toggleOrbitAnimation() {
+            orbitAnimating = !orbitAnimating;
+            const btnText = document.getElementById('orbitPlayText');
+            const btnIcon = document.getElementById('orbitPlayIcon');
+
+            if (orbitAnimating) {
+                if (btnText) btnText.textContent = '⏸ PAUSE MOTION';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-pause';
+                let step = 0;
+                function loop() {
+                    if (!orbitAnimating) return;
+                    step += 1;
+                    drawOrbitScene(step);
+                    orbitAnimationFrame = requestAnimationFrame(loop);
+                }
+                loop();
+            } else {
+                if (btnText) btnText.textContent = '▶ WATCH THE PLANETS MOVE';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-play';
+                if (orbitAnimationFrame) cancelAnimationFrame(orbitAnimationFrame);
+            }
+        }
+
+        function checkRR(qNum, choice, btn) {
+            const feedback = document.getElementById(`rrQ${qNum}Feedback`);
+            if (!feedback) return;
+
+            const isCorrect = (qNum === 1 && choice === 'rotate') || 
+                              (qNum === 2 && choice === 'revolve') || 
+                              (qNum === 3 && choice === 'revolve');
+
+            feedback.classList.remove('hidden');
+            if (isCorrect) {
+                feedback.className = 'text-xs font-bold pt-1 text-green-400';
+                feedback.textContent = '🌟 Correct! Great understanding!';
+                playSuccessSound();
+            } else {
+                feedback.className = 'text-xs font-bold pt-1 text-red-400';
+                feedback.textContent = '🤔 Try again! Remember: Rotate = spin, Revolve = move around Sun!';
+                playErrorSound();
+            }
+        }
+
+        function checkHeatQ(choice, btn) {
+            const feedback = document.getElementById('heatQFeedback');
+            if (!feedback) return;
+
+            feedback.classList.remove('hidden');
+            if (choice === 'closer') {
+                feedback.className = 'text-sm font-bold pt-1 text-green-400';
+                feedback.textContent = '🌟 Correct! Planets closer to the Sun receive more direct heat!';
+                playSuccessSound();
+            } else {
+                feedback.className = 'text-sm font-bold pt-1 text-red-400';
+                feedback.textContent = '🤔 Not quite! Closer planets get more solar heat energy!';
+                playErrorSound();
+            }
+        }
+
+        function checkDet(qNum, choice, btn) {
+            const feedback = document.getElementById(`detF${qNum}`);
+            if (!feedback) return;
+
+            const answers = { 1: '8', 2: 'mercury', 3: 'earth', 4: 'sun', 5: 'orbit' };
+            const isCorrect = (choice === answers[qNum]);
+
+            feedback.classList.remove('hidden');
+            if (isCorrect) {
+                feedback.className = 'text-xs font-bold pt-1 text-green-400';
+                feedback.textContent = '🌟 Excellent Detective Work! Correct!';
+                playSuccessSound();
+            } else {
+                feedback.className = 'text-xs font-bold pt-1 text-red-400';
+                feedback.textContent = '🕵️ Clue Check: Try another option!';
+                playErrorSound();
+            }
+        }
+
+        const quizQuestions = [
+            { q: "1. How many planets revolve around the Sun in our Solar System?", opts: ["6 Planets", "8 Planets", "10 Planets"], answer: 1 },
+            { q: "2. Which planet is closest to the Sun?", opts: ["Mercury", "Jupiter", "Neptune"], answer: 0 },
+            { q: "3. What is the name of the planet we live on?", opts: ["Mars", "Venus", "Earth"], answer: 2 },
+            { q: "4. What is an orbit?", opts: ["A road for space cars", "The path a planet follows around the Sun", "A cloud in space"], answer: 1 },
+            { q: "5. What does REVOLVE mean in space?", opts: ["Moving around the Sun", "Spinning like a top", "Floating up and down"], answer: 0 },
+            { q: "6. What does ROTATE mean?", opts: ["A planet spinning around itself", "A planet leaving the solar system", "A star shining bright"], answer: 0 },
+            { q: "7. Which planet generally receives MORE heat from the Sun?", opts: ["A planet farther from the Sun", "A planet closer to the Sun", "All planets receive equal heat"], answer: 1 },
+            { q: "8. Which is the farthest planet from the Sun?", opts: ["Neptune", "Mercury", "Saturn"], answer: 0 },
+            { q: "9. Why is Venus the hottest planet in our Solar System?", opts: ["It is closest to the Sun", "Its thick atmosphere traps heat", "It is made of fire"], answer: 1 },
+            { q: "10. What is at the centre of our Solar System?", opts: ["The Earth", "The Moon", "The Sun"], answer: 2 }
+        ];
+
+        let quizAnswers = new Array(10).fill(null);
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            const resultBox = document.getElementById('quizResultBox');
+            if (!container || !resultBox) return;
+
+            container.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-space-dark/80 p-4 sm:p-5 rounded-2xl border border-white/10 space-y-3';
+
+                let optsHTML = item.opts.map((opt, oIdx) => `
+                    <button onclick="selectQuizOption(${idx}, ${oIdx}, this)" 
+                            class="w-full text-left p-3 rounded-xl border text-sm font-bold transition flex items-center justify-between ${quizAnswers[idx] === oIdx ? 'bg-amber-400 text-space-dark border-amber-300' : 'bg-indigo-950/60 hover:bg-indigo-900 border-indigo-400/30 text-white'}">
+                        <span>${opt}</span>
+                        ${quizAnswers[idx] === oIdx ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-regular fa-circle"></i>'}
+                    </button>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="font-display font-bold text-base text-amber-300">${item.q}</div>
+                    <div class="grid grid-cols-1 gap-2">${optsHTML}</div>
+                `;
+                container.appendChild(card);
+            });
+
+            const submitBtn = document.createElement('button');
+            submitBtn.onclick = submitQuiz;
+            submitBtn.className = 'btn-space w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-space-dark font-display font-bold text-lg shadow-xl mt-4';
+            submitBtn.innerHTML = `<span>🚀 SUBMIT FINAL MISSION</span>`;
+            container.appendChild(submitBtn);
+        }
+
+        function selectQuizOption(qIdx, optIdx, btn) {
+            quizAnswers[qIdx] = optIdx;
+            playBeep(587.33, 'sine', 0.1, 0.08);
+            renderQuiz();
+        }
+
+        // Initialize on window load
+        window.onload = function() {
+            initStarsCanvas();
+            updateNavigationUI();
+        };
+    </script>
+</body>
+</html>
