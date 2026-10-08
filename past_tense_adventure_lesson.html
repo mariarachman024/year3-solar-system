@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Tense Adventure! - Year 3 English | SK Puteri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Fredoka', 'Nunito', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif']
+                    },
+                    colors: {
+                        adventure: {
+                            yellow: '#FFD166',
+                            green: '#06D6A0',
+                            blue: '#118AB2',
+                            red: '#EF476F',
+                            purple: '#8338EC',
+                            dark: '#073B4C'
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(255, 209, 102, 0.6)' },
+                            '50%': { boxShadow: '0 0 30px rgba(255, 209, 102, 0.9)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #F0F9FF;
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <header class="bg-white/90 backdrop-blur-md border-b-4 border-slate-200 sticky top-0 z-50 px-4 py-2 sm:px-6">
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-2">
+            
+            <!-- School & Class Tag -->
+            <div class="flex items-center gap-2">
+                <div class="bg-adventure-blue text-white p-2 rounded-2xl shadow-sm flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-lg sm:text-xl"></i>
+                </div>
+                <div>
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">SK Puteri</span>
+                    <span class="text-sm sm:text-base font-bold text-slate-800 leading-tight block">Year 3 • English</span>
+                </div>
+            </div>
+
+            <!-- Progress Map / Step Indicator -->
+            <div class="hidden md:flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                <span id="current-step-label" class="text-xs font-bold text-adventure-blue">Step 1 of 13</span>
+                <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden ml-1">
+                    <div id="top-progress-bar" class="bg-adventure-green h-full w-1/13 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Stats & Sound Toggles -->
+            <div class="flex items-center gap-2">
+                <!-- Stars Counter -->
+                <div class="bg-amber-100 border-2 border-amber-300 text-amber-700 px-3 py-1 rounded-full font-black text-sm sm:text-base flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-star text-amber-500 animate-pulse"></i>
+                    <span id="star-count">0</span>
+                </div>
+
+                <!-- Sound Controls -->
+                <button id="bgm-toggle-btn" onclick="toggleBGM()" class="bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 p-2 sm:px-3 sm:py-1 rounded-full text-xs font-bold transition flex items-center gap-1">
+                    <i id="bgm-icon" class="fa-solid fa-music text-slate-500"></i>
+                    <span id="bgm-text" class="hidden sm:inline">Music: OFF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6">
+        <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl border-4 border-slate-200 overflow-hidden relative min-h-[540px] flex flex-col justify-between">
+            
+            <!-- Dynamic Content Area -->
+            <div id="app-viewport" class="p-4 sm:p-8 flex-grow flex flex-col justify-center transition-all duration-300">
+                <!-- Content will be dynamically rendered here by JavaScript -->
+            </div>
+
+            <!-- Bottom Control Footer Bar -->
+            <footer id="nav-footer" class="bg-slate-50 border-t-2 border-slate-200 p-3 sm:p-4 flex items-center justify-between gap-3">
+                <button id="btn-prev" onclick="prevStep()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>BACK</span>
+                </button>
+
+                <!-- Mascot Mini Avatar Prompt -->
+                <div id="mascot-tip" class="hidden sm:flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-2xl text-xs font-medium text-blue-800 max-w-xs truncate">
+                    <span class="text-base">🦉</span>
+                    <span id="mascot-tip-text">Follow Detective Pip on our adventure!</span>
+                </div>
+
+                <button id="btn-next" onclick="nextStep()" class="bg-adventure-green hover:bg-emerald-500 text-white font-extrabold px-6 py-2.5 rounded-2xl flex items-center gap-2 shadow-md transition active:scale-95">
+                    <span>NEXT</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </footer>
+
+        </div>
+    </main>
+
+    <script>
+        /* Web Audio API Sound Synthesizer (No external audio files needed!) */
+        let audioCtx = null;
+        let isBgmPlaying = false;
+        let bgmInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // SFX Generator
+        function playSFX(type) {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // Cheerful arpeggio C5 - E5 - G5 - C6
+                    const freqs = [523.25, 659.25, 783.99, 1046.50];
+                    freqs.forEach((f, index) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(f, now + index * 0.08);
+                        gain.gain.setValueAtTime(0.15, now + index * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + index * 0.08);
+                        osc.stop(now + index * 0.08 + 0.25);
+                    });
+                } else if (type === 'wrong') {
+                    // Soft error low buzz
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(130, now + 0.1);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    // Crisp click
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'victory') {
+                    // Victory fanfare sequence
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 880, 1046.50];
+                    const times = [0, 0.12, 0.24, 0.36, 0.52, 0.70];
+                    notes.forEach((f, i) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(f, now + times[i]);
+                        gain.gain.setValueAtTime(0.2, now + times[i]);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + times[i] + 0.3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + times[i]);
+                        osc.stop(now + times[i] + 0.3);
+                    });
+                }
+            } catch(e) {
+                console.log("Audio API standard init", e);
+            }
+        }
+
+        // Cheerful Procedural Background Music
+        function toggleBGM() {
+            initAudio();
+            isBgmPlaying = !isBgmPlaying;
+            
+            const btnIcon = document.getElementById('bgm-icon');
+            const btnText = document.getElementById('bgm-text');
+
+            if (isBgmPlaying) {
+                btnIcon.className = 'fa-solid fa-volume-high text-emerald-600 animate-bounce';
+                btnText.textContent = 'Music: ON';
+                startBgmLoop();
+            } else {
+                btnIcon.className = 'fa-solid fa-music text-slate-500';
+                btnText.textContent = 'Music: OFF';
+                stopBgmLoop();
+            }
+        }
+
+        function startBgmLoop() {
+            if (bgmInterval) clearInterval(bgmInterval);
+            
+            // Soft Pentatonic Melody Loop (C major pentatonic)
+            const melody = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 392.00, 329.63];
+            let noteIdx = 0;
+
+            bgmInterval = setInterval(() => {
+                if (!isBgmPlaying || !audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(melody[noteIdx], now);
+                
+                // Very soft ambient volume
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.38);
+
+                noteIdx = (noteIdx + 1) % melody.length;
+            }, 400);
+        }
+
+        function stopBgmLoop() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+    </script>
+
+    <script>
+        // Global Application State
+        let currentStep = 0;
+        let starScore = 0;
+
+        // Custom Feedback Modal Helper
+        function showFeedbackModal(isSuccess, title, message, onConfirm = null) {
+            playSFX(isSuccess ? 'correct' : 'wrong');
+            
+            const modal = document.createElement('div');
+            modal.id = 'feedback-modal';
+            modal.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in';
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center border-4 ${isSuccess ? 'border-emerald-400' : 'border-rose-400'} shadow-2xl transform transition-all scale-100">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center ${isSuccess ? 'bg-emerald-100 text-emerald-500' : 'bg-rose-100 text-rose-500'} text-4xl shadow-inner">
+                        <i class="fa-solid ${isSuccess ? 'fa-face-laugh-beam animate-bounce' : 'fa-face-frown'}"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold ${isSuccess ? 'text-emerald-600' : 'text-rose-600'} mb-2">${title}</h3>
+                    <p class="text-slate-600 font-medium mb-6 text-base">${message}</p>
+                    <button id="modal-btn" class="w-full ${isSuccess ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-amber-500 hover:bg-amber-600'} text-white font-extrabold py-3 rounded-2xl shadow-lg transition active:scale-95 text-lg">
+                        ${isSuccess ? 'CONTINUE 🌟' : 'TRY AGAIN 💪'}
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            document.getElementById('modal-btn').onclick = () => {
+                document.body.removeChild(modal);
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        function addStar(count = 1) {
+            starScore += count;
+            document.getElementById('star-count').textContent = starScore;
+            
+            // Pop effect on star counter
+            const starEl = document.getElementById('star-count').parentElement;
+            starEl.classList.add('scale-125', 'bg-amber-200');
+            setTimeout(() => {
+                starEl.classList.remove('scale-125', 'bg-amber-200');
+            }, 300);
+        }
+
+        // Navigation Controllers
+        function updateProgressUI() {
+            const totalSteps = 13;
+            const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+            document.getElementById('top-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('current-step-label').textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+
+            // Button visibility state
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+
+            prevBtn.disabled = currentStep === 0;
+
+            if (currentStep === 0) {
+                nextBtn.classList.add('hidden');
+            } else if (currentStep === 12) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+
+            // Render current step content
+            renderStepContent(currentStep);
+        }
+
+        function nextStep() {
+            playSFX('click');
+            if (currentStep < 12) {
+                currentStep++;
+                updateProgressUI();
+            }
+        }
+
+        function prevStep() {
+            playSFX('click');
+            if (currentStep > 0) {
+                currentStep--;
+                updateProgressUI();
+            }
+        }
+
+        function renderStepContent(stepIndex) {
+            const viewport = document.getElementById('app-viewport');
+            const mascotTip = document.getElementById('mascot-tip-text');
+
+            switch(stepIndex) {
+                case 0:
+                    renderWelcomeScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Welcome! Tap START to begin our adventure!";
+                    break;
+                case 1:
+                    renderObjectivesScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Here is what we will learn today!";
+                    break;
+                case 2:
+                    renderWarmUpScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Let's compare Yesterday and Today!";
+                    break;
+                case 3:
+                    renderWhatIsPastTenseScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Past tense tells us about what already happened!";
+                    break;
+                case 4:
+                    renderRegularVerbsScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Adding -ed makes many words past tense!";
+                    break;
+                case 5:
+                    renderSpellingRulesScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Watch out for special spelling rules!";
+                    break;
+                case 6:
+                    renderIrregularVerbsScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Memory Game! Find matching past tense pairs!";
+                    break;
+                case 7:
+                    renderChooseVerbScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Choose the correct past tense verb!";
+                    break;
+                case 8:
+                    renderChangeSentenceScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Change present sentences into past tense!";
+                    break;
+                case 9:
+                    renderDetectiveScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Spot the past tense verb in each sentence!";
+                    break;
+                case 10:
+                    renderMiniStoryScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Read the fun story and answer the questions!";
+                    break;
+                case 11:
+                    renderFinalChallengeScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Show off your knowledge in the Final Quiz!";
+                    break;
+                case 12:
+                    renderExitTicketScreen(viewport);
+                    if(mascotTip) mascotTip.textContent = "Congratulations! Claim your certificate!";
+                    break;
+            }
+        }
+
+        function renderWelcomeScreen(container) {
+            container.innerHTML = `
+                <div class="text-center py-4 flex flex-col items-center justify-center space-y-6 animate-fade-in">
+                    <!-- Badge Header -->
+                    <div class="inline-flex items-center gap-2 bg-amber-100 border-2 border-amber-300 text-amber-800 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm">
+                        <span class="text-lg">🏫</span> SK PUTERI • YEAR 3 ENGLISH
+                    </div>
+
+                    <!-- Title Banner -->
+                    <div class="space-y-2">
+                        <h1 class="text-4xl sm:text-6xl font-black text-adventure-blue tracking-tight drop-shadow-md">
+                            PAST TENSE <span class="text-adventure-red">ADVENTURE!</span>
+                        </h1>
+                        <p class="text-lg sm:text-xl font-extrabold text-slate-600">
+                            Fun Interactive Lesson with Teacher Maria
+                        </p>
+                    </div>
+
+                    <!-- Visual Hero Mascot Canvas Illustration -->
+                    <div class="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto bg-gradient-to-tr from-sky-200 to-indigo-100 rounded-full flex items-center justify-center shadow-inner border-4 border-white animate-float">
+                        <div class="text-7xl sm:text-8xl">🦉✨</div>
+                        <div class="absolute -bottom-2 -right-2 bg-adventure-yellow text-slate-900 font-black px-3 py-1 rounded-2xl shadow-md text-xs border border-white">
+                            Teacher Maria A. Rachman
+                        </div>
+                    </div>
+
+                    <!-- Big Play Button -->
+                    <div class="pt-2">
+                        <button onclick="nextStep()" class="group relative inline-flex items-center gap-3 bg-adventure-green hover:bg-emerald-500 text-white font-black text-2xl sm:text-3xl px-10 py-4 rounded-3xl shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 active:translate-y-0 animate-pulse-glow">
+                            <span>START LESSON</span>
+                            <i class="fa-solid fa-circle-play text-3xl group-hover:scale-110 transition"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderObjectivesScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-blue-100 text-adventure-blue px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Lesson Roadmap</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Target Learning Objectives 🎯</h2>
+                        <p class="text-slate-500 text-sm">By the end of today's adventure, you will be able to:</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                        <!-- Goal 1 -->
+                        <div class="bg-amber-50 border-2 border-amber-200 p-5 rounded-3xl shadow-sm text-center flex flex-col items-center space-y-3 hover:scale-105 transition">
+                            <div class="w-14 h-14 bg-amber-400 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md">
+                                🔍
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-lg">1. Identify</h3>
+                            <p class="text-slate-600 text-sm font-medium leading-relaxed">
+                                Spot sentences written in the <strong class="text-amber-700">Past Tense</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Goal 2 -->
+                        <div class="bg-emerald-50 border-2 border-emerald-200 p-5 rounded-3xl shadow-sm text-center flex flex-col items-center space-y-3 hover:scale-105 transition">
+                            <div class="w-14 h-14 bg-emerald-400 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md">
+                                ✏️
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-lg">2. Change</h3>
+                            <p class="text-slate-600 text-sm font-medium leading-relaxed">
+                                Convert simple action verbs into the <strong class="text-emerald-700">Past Tense</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Goal 3 -->
+                        <div class="bg-purple-50 border-2 border-purple-200 p-5 rounded-3xl shadow-sm text-center flex flex-col items-center space-y-3 hover:scale-105 transition">
+                            <div class="w-14 h-14 bg-purple-400 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md">
+                                🗣️
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-lg">3. Express</h3>
+                            <p class="text-slate-600 text-sm font-medium leading-relaxed">
+                                Use the past tense to talk about things that <strong class="text-purple-700">happened before</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200 flex items-center justify-between text-sm text-slate-600">
+                        <span>Ready to start? Tap <strong>NEXT</strong> below!</span>
+                        <span class="text-xl">🚀</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWarmUpScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Warm-Up Activity</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Yesterday vs. Today ⚽</h2>
+                    </div>
+
+                    <!-- Story Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div id="warmup-card-a" class="bg-sky-50 border-2 border-sky-300 p-5 rounded-3xl text-center space-y-2 shadow-sm">
+                            <span class="inline-block bg-sky-200 text-sky-800 font-extrabold text-xs px-3 py-1 rounded-full">Sentence A</span>
+                            <div class="text-4xl py-2">⚽🏃‍♂️</div>
+                            <p class="text-xl font-black text-sky-900">"Yesterday, Ali played football."</p>
+                        </div>
+
+                        <div id="warmup-card-b" class="bg-indigo-50 border-2 border-indigo-300 p-5 rounded-3xl text-center space-y-2 shadow-sm">
+                            <span class="inline-block bg-indigo-200 text-indigo-800 font-extrabold text-xs px-3 py-1 rounded-full">Sentence B</span>
+                            <div class="text-4xl py-2">⚽👟</div>
+                            <p class="text-xl font-black text-indigo-900">"Today, Ali plays football."</p>
+                        </div>
+                    </div>
+
+                    <!-- Question Prompt -->
+                    <div class="bg-white border-2 border-slate-200 p-5 rounded-3xl text-center space-y-4 shadow-md">
+                        <p class="text-lg font-bold text-slate-800">Which sentence tells us about <span class="text-adventure-red font-black underline">YESTERDAY</span>?</p>
+                        
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <button onclick="checkWarmUp('A')" class="bg-sky-500 hover:bg-sky-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-md text-lg active:scale-95 transition">
+                                Sentence A
+                            </button>
+                            <button onclick="checkWarmUp('B')" class="bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-md text-lg active:scale-95 transition">
+                                Sentence B
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Explanation Box (Hidden initially) -->
+                    <div id="warmup-explanation" class="hidden bg-emerald-50 border-2 border-emerald-300 p-4 rounded-2xl text-emerald-800 font-bold text-center text-sm sm:text-base animate-fade-in">
+                        🎉 Correct! <strong>"Yesterday, Ali played football"</strong> happened before. We use the <strong>Past Tense</strong> for actions that are finished!
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkWarmUp(choice) {
+            if (choice === 'A') {
+                document.getElementById('warmup-explanation').classList.remove('hidden');
+                addStar(1);
+                showFeedbackModal(true, "Great job! 🏆", "Sentence A tells us about something that happened yesterday!");
+            } else {
+                showFeedbackModal(false, "Try Again! 💪", "Sentence B says 'Today'. Look for the sentence with 'Yesterday'!");
+            }
+        }
+
+        function renderWhatIsPastTenseScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Concept Time</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">What is the Past Tense? 🤔</h2>
+                    </div>
+
+                    <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl text-center text-slate-700 font-bold text-base sm:text-lg shadow-sm">
+                        ✨ <strong>Past Tense</strong> tells us about something that <span class="text-amber-800 underline">already happened</span>!
+                    </div>
+
+                    <!-- Examples Visual Comparison Table -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Example 1 -->
+                        <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between border-b pb-2">
+                                <span class="text-xs font-black text-slate-400 uppercase">Example 1</span>
+                                <span class="text-xl">⚽</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl">
+                                    <span class="text-xs font-extrabold text-slate-500 uppercase">Today:</span>
+                                    <span class="text-base font-bold text-slate-700">I <span class="text-blue-600 font-black">play</span> football.</span>
+                                </div>
+                                <div class="flex items-center justify-between bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                                    <span class="text-xs font-extrabold text-emerald-600 uppercase">Yesterday:</span>
+                                    <span class="text-base font-extrabold text-slate-800">I <span class="bg-emerald-300 text-emerald-900 px-2 py-0.5 rounded-lg">play<span class="underline">ed</span></span> football.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Example 2 -->
+                        <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between border-b pb-2">
+                                <span class="text-xs font-black text-slate-400 uppercase">Example 2</span>
+                                <span class="text-xl">🏫</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl">
+                                    <span class="text-xs font-extrabold text-slate-500 uppercase">Today:</span>
+                                    <span class="text-base font-bold text-slate-700">I <span class="text-blue-600 font-black">walk</span> to school.</span>
+                                </div>
+                                <div class="flex items-center justify-between bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                                    <span class="text-xs font-extrabold text-emerald-600 uppercase">Yesterday:</span>
+                                    <span class="text-base font-extrabold text-slate-800">I <span class="bg-emerald-300 text-emerald-900 px-2 py-0.5 rounded-lg">walk<span class="underline">ed</span></span> to school.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="text-center bg-blue-50 p-3 rounded-2xl border border-blue-200 text-blue-900 font-extrabold text-sm">
+                        💡 Notice how we added <span class="bg-yellow-300 px-2 py-0.5 rounded text-slate-900">-ed</span> to the end of the verbs!
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRegularVerbsScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Grammar Rule 1</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Regular Verbs ➕ ed</h2>
+                    </div>
+
+                    <div class="bg-emerald-50 border-2 border-emerald-300 p-4 rounded-3xl text-center">
+                        <p class="text-lg font-extrabold text-emerald-900">For most verbs, simply add <span class="bg-amber-300 text-slate-900 px-2 py-1 rounded-xl font-black">-ed</span></p>
+                    </div>
+
+                    <!-- Flashcard Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🎮</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">play → <span class="text-emerald-600">played</span></p>
+                        </div>
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🚶</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">walk → <span class="text-emerald-600">walked</span></p>
+                        </div>
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🦘</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">jump → <span class="text-emerald-600">jumped</span></p>
+                        </div>
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🧹</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">clean → <span class="text-emerald-600">cleaned</span></p>
+                        </div>
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🧼</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">wash → <span class="text-emerald-600">washed</span></p>
+                        </div>
+                        <div class="bg-white border-2 border-slate-200 p-3 rounded-2xl text-center shadow-sm">
+                            <span class="text-2xl">🤝</span>
+                            <p class="font-black text-slate-700 text-sm mt-1">help → <span class="text-emerald-600">helped</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Mini Interactive Activity -->
+                    <div class="bg-slate-900 text-white p-5 rounded-3xl space-y-4 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-amber-400 font-extrabold text-sm uppercase">Quick Mini Challenge</span>
+                            <span class="text-xs text-slate-400">Add -ed to the verb</span>
+                        </div>
+
+                        <p class="text-center text-xl font-black">PLAY  ➕  ed  =  <span class="text-amber-300 underline">?</span></p>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="checkRegularMini('A')" class="bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 text-white font-black py-2.5 rounded-2xl text-base active:scale-95 transition">
+                                played
+                            </button>
+                            <button onclick="checkRegularMini('B')" class="bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 text-white font-black py-2.5 rounded-2xl text-base active:scale-95 transition">
+                                playing
+                            </button>
+                            <button onclick="checkRegularMini('C')" class="bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 text-white font-black py-2.5 rounded-2xl text-base active:scale-95 transition">
+                                plays
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkRegularMini(choice) {
+            if (choice === 'A') {
+                addStar(1);
+                showFeedbackModal(true, "Well done! 🌟", "PLAY + ED = PLAYED! You got it right!");
+            } else {
+                showFeedbackModal(false, "Try again! 💪", "Remember: for past tense, add -ED to the end!");
+            }
+        }
+
+        function renderSpellingRulesScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-5 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Grammar Rule 2</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Spelling Rules 📝</h2>
+                    </div>
+
+                    <!-- 3 Simple Rules Cards -->
+                    <div class="space-y-3">
+                        
+                        <!-- Rule 1 -->
+                        <div class="bg-white border-2 border-sky-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <span class="bg-sky-100 text-sky-800 font-bold text-xs px-2.5 py-0.5 rounded-full">Rule 1</span>
+                                <p class="font-extrabold text-slate-800 text-sm sm:text-base mt-1">Normal verbs → add <span class="text-sky-600 font-black">-ed</span></p>
+                            </div>
+                            <div class="bg-sky-50 px-3 py-1.5 rounded-xl text-xs font-black text-sky-900 border border-sky-200">
+                                walk → walked
+                            </div>
+                        </div>
+
+                        <!-- Rule 2 -->
+                        <div class="bg-white border-2 border-amber-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <span class="bg-amber-100 text-amber-800 font-bold text-xs px-2.5 py-0.5 rounded-full">Rule 2</span>
+                                <p class="font-extrabold text-slate-800 text-sm sm:text-base mt-1">Ends in <span class="text-amber-600 font-black">-e</span> → just add <span class="text-amber-600 font-black">-d</span></p>
+                            </div>
+                            <div class="bg-amber-50 px-3 py-1.5 rounded-xl text-xs font-black text-amber-900 border border-amber-200">
+                                dance → danced
+                            </div>
+                        </div>
+
+                        <!-- Rule 3 -->
+                        <div class="bg-white border-2 border-rose-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                            <div>
+                                <span class="bg-rose-100 text-rose-800 font-bold text-xs px-2.5 py-0.5 rounded-full">Rule 3</span>
+                                <p class="font-extrabold text-slate-800 text-sm sm:text-base mt-1">Ends in <span class="text-rose-600 font-black">consonant + y</span> → change y to <span class="text-rose-600 font-black">-ied</span></p>
+                            </div>
+                            <div class="bg-rose-50 px-3 py-1.5 rounded-xl text-xs font-black text-rose-900 border border-rose-200">
+                                cry → cried
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Quick Practice Challenge -->
+                    <div class="bg-purple-50 border-2 border-purple-200 p-4 rounded-3xl space-y-3">
+                        <p class="text-center font-extrabold text-purple-900 text-sm">How do you spell the past tense of <span class="text-purple-700 underline font-black">STUDY</span>?</p>
+                        <div class="flex justify-center gap-3">
+                            <button onclick="checkSpelling('A')" class="bg-white hover:bg-purple-100 border-2 border-purple-300 font-black px-4 py-2 rounded-xl text-sm transition">
+                                studyed
+                            </button>
+                            <button onclick="checkSpelling('B')" class="bg-white hover:bg-purple-100 border-2 border-purple-300 font-black px-4 py-2 rounded-xl text-sm transition">
+                                studied
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkSpelling(choice) {
+            if (choice === 'B') {
+                addStar(1);
+                showFeedbackModal(true, "Excellent! 🏆", "STUDY ends in 'y', so it becomes STUDIED (-ied)!");
+            } else {
+                showFeedbackModal(false, "Try again! 💪", "Rule 3: Change 'y' to '-ied'! Try studied!");
+            }
+        }
+
+        let memoryDeck = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        function renderIrregularVerbsScreen(container) {
+            container.innerHTML = `
+                <div class="space-y-4 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Special Verbs</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Irregular Verbs Memory Game 🃏</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 font-bold">Some verbs change completely! Match the present verb to its past tense!</p>
+                    </div>
+
+                    <!-- Memory Game Grid Canvas -->
+                    <div id="memory-board" class="grid grid-cols-4 gap-2 sm:gap-3 max-w-md mx-auto py-2">
+                        <!-- Dynamic Memory Cards -->
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="initMemoryGame()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-1.5 rounded-xl text-xs transition">
+                            🔄 Reset Memory Cards
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(initMemoryGame, 50);
+        }
+
+        function initMemoryGame() {
+            matchedPairs = 0;
+            flippedCards = [];
+            
+            const pairs = [
+                { id: 1, text: "GO", pairId: 1, type: "present" },
+                { id: 1, text: "WENT", pairId: 1, type: "past" },
+                { id: 2, text: "EAT", pairId: 2, type: "present" },
+                { id: 2, text: "ATE", pairId: 2, type: "past" },
+                { id: 3, text: "SEE", pairId: 3, type: "present" },
+                { id: 3, text: "SAW", pairId: 3, type: "past" },
+                { id: 4, text: "RUN", pairId: 4, type: "present" },
+                { id: 4, text: "RAN", pairId: 4, type: "past" }
+            ];
+
+            // Shuffle cards
+            memoryDeck = pairs.sort(() => Math.random() - 0.5);
+
+            const board = document.getElementById('memory-board');
+            if(!board) return;
+
+            board.innerHTML = '';
+            memoryDeck.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card-flip h-20 sm:h-24 cursor-pointer';
+                cardEl.innerHTML = `
+                    <div id="card-inner-${index}" onclick="flipMemoryCard(${index})" class="card-inner w-full h-full relative rounded-2xl shadow-md border-2 border-slate-300 bg-white">
+                        <!-- Card Front (Hidden face) -->
+                        <div class="card-front absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black">
+                            ❓
+                        </div>
+                        <!-- Card Back (Text face) -->
+                        <div class="card-back absolute inset-0 bg-amber-100 rounded-2xl border-2 border-amber-300 flex flex-col items-center justify-center p-1 text-center">
+                            <span class="text-xs text-amber-800 font-black uppercase">${card.type}</span>
+                            <span class="text-base sm:text-lg font-black text-slate-800">${card.text}</span>
+                        </div>
+                    </div>
+                `;
+                board.appendChild(cardEl);
+            });
+        }
+
+        function flipMemoryCard(index) {
+            if (flippedCards.length >= 2) return;
+            const cardInner = document.getElementById(`card-inner-${index}`);
+            if (cardInner.classList.contains('card-flipped')) return;
+
+            playSFX('click');
+            cardInner.classList.add('card-flipped');
+            flippedCards.push({ index, data: memoryDeck[index] });
+
+            if (flippedCards.length === 2) {
+                const [card1, card2] = flippedCards;
+                if (card1.data.pairId === card2.data.pairId && card1.index !== card2.index) {
+                    // Match found!
+                    matchedPairs++;
+                    addStar(2);
+                    playSFX('correct');
+                    flippedCards = [];
+
+                    if (matchedPairs === 4) {
+                        setTimeout(() => {
+                            showFeedbackModal(true, "Memory Master! 🏆", "You matched all irregular verb pairs!");
+                        }, 500);
+                    }
+                } else {
+                    // Not a match
+                    setTimeout(() => {
+                        playSFX('wrong');
+                        document.getElementById(`card-inner-${card1.index}`).classList.remove('card-flipped');
+                        document.getElementById(`card-inner-${card2.index}`).classList.remove('card-flipped');
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        let mcqCurrentIndex = 0;
+        const mcqQuestions = [
+            { q: "1. Yesterday, I _____ to school.", options: ["walk", "walked", "walking"], ans: "walked" },
+            { q: "2. Sarah _____ an apple yesterday.", options: ["eat", "ate", "eating"], ans: "ate" },
+            { q: "3. We _____ football last Saturday.", options: ["played", "play", "playing"], ans: "played" },
+            { q: "4. Ali _____ a book last night.", options: ["read", "reads", "reading"], ans: "read" },
+            { q: "5. Mother _____ a delicious cake this morning.", options: ["bakes", "baked", "baking"], ans: "baked" },
+            { q: "6. The children _____ in the pool yesterday.", options: ["swam", "swim", "swimming"], ans: "swam" },
+            { q: "7. I _____ my homework two hours ago.", options: ["finish", "finished", "finishing"], ans: "finished" },
+            { q: "8. They _____ to the zoo last weekend.", options: ["go", "went", "going"], ans: "went" }
+        ];
+
+        function renderChooseVerbScreen(container) {
+            mcqCurrentIndex = 0;
+            renderMCQQuestion(container);
+        }
+
+        function renderMCQQuestion(container) {
+            const item = mcqQuestions[mcqCurrentIndex];
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Question ${mcqCurrentIndex + 1} of 8</span>
+                        <span class="text-xs font-bold text-slate-400">Choose the Correct Verb</span>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="bg-amber-50 border-2 border-amber-300 p-6 rounded-3xl text-center shadow-md">
+                        <h3 class="text-2xl font-black text-slate-800">${item.q}</h3>
+                    </div>
+
+                    <!-- MCQ Choices Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${item.options.map(opt => `
+                            <button onclick="handleMCQChoice('${opt}')" class="bg-white hover:bg-blue-50 border-2 border-slate-200 hover:border-blue-400 font-black text-slate-800 py-4 px-4 rounded-2xl text-xl shadow-sm transition active:scale-95">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleMCQChoice(selected) {
+            const currentItem = mcqQuestions[mcqCurrentIndex];
+            if (selected === currentItem.ans) {
+                addStar(1);
+                showFeedbackModal(true, "Great job! 🌟", `"${selected}" is the correct past tense verb!`, () => {
+                    if (mcqCurrentIndex < mcqQuestions.length - 1) {
+                        mcqCurrentIndex++;
+                        renderMCQQuestion(document.getElementById('app-viewport'));
+                    } else {
+                        showFeedbackModal(true, "Section Complete! 🎉", "You solved all 8 verb questions!", () => {
+                            nextStep();
+                        });
+                    }
+                });
+            } else {
+                showFeedbackModal(false, "Try Again! 💪", "Look closely at the time clue like 'yesterday' or 'last night'!");
+            }
+        }
+
+        let sentenceIndex = 0;
+        const transformQuestions = [
+            { pres: "I play football.", past: "I played football.", options: ["I played football.", "I playing football.", "I plays football."] },
+            { pres: "She goes to school.", past: "She went to school.", options: ["She goed to school.", "She went to school.", "She go to school."] },
+            { pres: "They wash the car.", past: "They washed the car.", options: ["They washing the car.", "They washed the car.", "They washes the car."] },
+            { pres: "He eats an apple.", past: "He ate an apple.", options: ["He ate an apple.", "He eated an apple.", "He eating an apple."] },
+            { pres: "We dance happily.", past: "We danced happily.", options: ["We danced happily.", "We dancing happily.", "We dances happily."] },
+            { pres: "I see a big dog.", past: "I saw a big dog.", options: ["I seed a big dog.", "I saw a big dog.", "I seeing a big dog."] }
+        ];
+
+        function renderChangeSentenceScreen(container) {
+            sentenceIndex = 0;
+            renderSentenceQuestion(container);
+        }
+
+        function renderSentenceQuestion(container) {
+            const q = transformQuestions[sentenceIndex];
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Sentence ${sentenceIndex + 1} of 6</span>
+                        <span class="text-xs font-bold text-slate-400">Change Present → Past</span>
+                    </div>
+
+                    <!-- Present Tense Box -->
+                    <div class="bg-sky-50 border-2 border-sky-300 p-5 rounded-3xl text-center space-y-1 shadow-sm">
+                        <span class="bg-sky-200 text-sky-800 text-xs font-black px-3 py-0.5 rounded-full uppercase">Present Tense</span>
+                        <p class="text-2xl font-black text-slate-800 py-1">"${q.pres}"</p>
+                    </div>
+
+                    <p class="text-center font-bold text-slate-600 text-base">Select the correct <span class="text-emerald-600 font-extrabold underline">Past Tense</span> sentence:</p>
+
+                    <!-- Answer Options -->
+                    <div class="space-y-3">
+                        ${q.options.map(opt => `
+                            <button onclick="checkSentenceTransform('${opt}')" class="w-full bg-white hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-400 text-slate-800 font-black p-4 rounded-2xl text-lg text-left shadow-sm transition active:scale-95 flex items-center justify-between">
+                                <span>${opt}</span>
+                                <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkSentenceTransform(selected) {
+            const currentQ = transformQuestions[sentenceIndex];
+            if (selected === currentQ.past) {
+                addStar(1);
+                showFeedbackModal(true, "Spot On! 🏆", `"${selected}" is correct!`, () => {
+                    if (sentenceIndex < transformQuestions.length - 1) {
+                        sentenceIndex++;
+                        renderSentenceQuestion(document.getElementById('app-viewport'));
+                    } else {
+                        showFeedbackModal(true, "Section Complete! 🌟", "Awesome! You converted all 6 sentences!", () => {
+                            nextStep();
+                        });
+                    }
+                });
+            } else {
+                showFeedbackModal(false, "Try Again! 💪", "Make sure the action verb is changed into past tense!");
+            }
+        }
+
+        let detectiveIdx = 0;
+        const detectiveQuestions = [
+            { sentence: "Tom jumped over the box.", words: ["Tom", "jumped", "over"], verb: "jumped" },
+            { sentence: "Sara ate a sweet donut.", words: ["Sara", "ate", "donut"], verb: "ate" },
+            { sentence: "The puppy ran across the yard.", words: ["puppy", "ran", "across"], verb: "ran" },
+            { sentence: "We played happily in the park.", words: ["We", "played", "happily"], verb: "played" },
+            { sentence: "Teacher Maria wrote on the board.", words: ["Maria", "wrote", "board"], verb: "wrote" },
+            { sentence: "They walked to school yesterday.", words: ["They", "walked", "school"], verb: "walked" }
+        ];
+
+        function renderDetectiveScreen(container) {
+            detectiveIdx = 0;
+            renderDetectiveQuestion(container);
+        }
+
+        function renderDetectiveQuestion(container) {
+            const dq = detectiveQuestions[detectiveIdx];
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Detective Clue ${detectiveIdx + 1} of 6</span>
+                        <span class="text-xs font-bold text-amber-600">🕵️ Past Tense Detective</span>
+                    </div>
+
+                    <!-- Detective Header Banner -->
+                    <div class="bg-slate-900 text-white p-5 rounded-3xl text-center space-y-2 shadow-xl border-2 border-amber-400">
+                        <div class="text-4xl">🕵️‍♂️🔎</div>
+                        <p class="text-amber-300 font-extrabold text-sm uppercase">Find the Past Tense Verb!</p>
+                        <p class="text-2xl font-black text-white py-1">"${dq.sentence}"</p>
+                    </div>
+
+                    <p class="text-center font-bold text-slate-700">Which word is the <span class="text-amber-600 underline font-black">past tense verb</span>?</p>
+
+                    <!-- Choice Buttons -->
+                    <div class="grid grid-cols-3 gap-3">
+                        ${dq.words.map(w => `
+                            <button onclick="checkDetectiveWord('${w}')" class="bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-900 font-black py-4 px-2 rounded-2xl text-xl shadow-md transition active:scale-95">
+                                ${w}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkDetectiveWord(selected) {
+            const currentDQ = detectiveQuestions[detectiveIdx];
+            if (selected === currentDQ.verb) {
+                addStar(1);
+                showFeedbackModal(true, "Case Solved! 🔎", `"${selected}" is indeed the past tense verb!`, () => {
+                    if (detectiveIdx < detectiveQuestions.length - 1) {
+                        detectiveIdx++;
+                        renderDetectiveQuestion(document.getElementById('app-viewport'));
+                    } else {
+                        showFeedbackModal(true, "Master Detective! 🏆", "You solved all detective cases!", () => {
+                            nextStep();
+                        });
+                    }
+                });
+            } else {
+                showFeedbackModal(false, "Keep Searching! 🕵️", `"${selected}" is not the action verb. Try again!`);
+            }
+        }
+
+        let storyQuestionIdx = 0;
+        const storyQuestions = [
+            { q: "Where did Maria go yesterday?", options: ["To the park", "To the zoo", "To school"], ans: "To the park" },
+            { q: "What did she see?", options: ["A small cat", "A big dog", "A bird"], ans: "A big dog" },
+            { q: "What did they eat at the park?", options: ["Apples", "Ice cream", "Sandwiches"], ans: "Sandwiches" }
+        ];
+
+        function renderMiniStoryScreen(container) {
+            storyQuestionIdx = 0;
+            container.innerHTML = `
+                <div class="space-y-5 animate-fade-in">
+                    <div class="text-center space-y-1">
+                        <span class="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Story Time</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Yesterday at the Park 📖</h2>
+                    </div>
+
+                    <!-- Story Box with Highlighted Verbs -->
+                    <div class="bg-amber-50 border-2 border-amber-300 p-5 rounded-3xl space-y-2 text-slate-800 font-bold text-base sm:text-lg leading-relaxed shadow-sm">
+                        <p>Yesterday, Maria <span class="bg-amber-300 px-2 py-0.5 rounded-lg text-slate-900 font-black">went</span> to the park.</p>
+                        <p>She <span class="bg-amber-300 px-2 py-0.5 rounded-lg text-slate-900 font-black">saw</span> a big dog.</p>
+                        <p>She <span class="bg-amber-300 px-2 py-0.5 rounded-lg text-slate-900 font-black">played</span> with her friends.</p>
+                        <p>They <span class="bg-amber-300 px-2 py-0.5 rounded-lg text-slate-900 font-black">ate</span> some sandwiches.</p>
+                        <p>Then they <span class="bg-amber-300 px-2 py-0.5 rounded-lg text-slate-900 font-black">ran</span> home.</p>
+                    </div>
+
+                    <!-- Interactive Story Comprehension -->
+                    <div id="story-quiz-area" class="bg-white border-2 border-slate-200 p-4 rounded-3xl space-y-3 shadow-sm">
+                        <!-- Dynamic Question -->
+                    </div>
+                </div>
+            `;
+
+            renderStoryQuestion();
+        }
+
+        function renderStoryQuestion() {
+            const sq = storyQuestions[storyQuestionIdx];
+            const quizArea = document.getElementById('story-quiz-area');
+            if(!quizArea) return;
+
+            quizArea.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-rose-600 uppercase">Question ${storyQuestionIdx + 1} of 3</span>
+                </div>
+                <p class="font-extrabold text-slate-800 text-lg text-center font-bold">${sq.q}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    ${sq.options.map(opt => `
+                        <button onclick="checkStoryAnswer('${opt}')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 font-extrabold p-3 rounded-2xl text-base transition active:scale-95">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function checkStoryAnswer(selected) {
+            const currentSQ = storyQuestions[storyQuestionIdx];
+            if (selected === currentSQ.ans) {
+                addStar(1);
+                showFeedbackModal(true, "Correct! 📖", `"${selected}" is the right answer based on the story!`, () => {
+                    if (storyQuestionIdx < storyQuestions.length - 1) {
+                        storyQuestionIdx++;
+                        renderStoryQuestion();
+                    } else {
+                        showFeedbackModal(true, "Story Completed! 🌟", "Great reading comprehension skills!", () => {
+                            nextStep();
+                        });
+                    }
+                });
+            } else {
+                showFeedbackModal(false, "Check the Story! 🧐", "Read the sentence highlighted above and try again!");
+            }
+        }
+
+        let finalQuizIdx = 0;
+        let finalQuizScore = 0;
+        let finalQuizQuestionStarred = [];
+
+        const finalQuizData = [
+            { q: "1. Yesterday, Ali _____ a fast dog.", options: ["sees", "saw", "seeing"], ans: "saw", hint: "'Yesterday' tells us this happened before. The past tense of 'see' is 'saw'!" },
+            { q: "2. We _____ football last night.", options: ["played", "play", "playing"], ans: "played", hint: "Add -ed to 'play' for actions that happened in the past!" },
+            { q: "3. Mother _____ a cake yesterday.", options: ["baked", "bake", "baking"], ans: "baked", hint: "'bake' ends in 'e', so just add 'd' at the end!" },
+            { q: "4. What is the past tense of 'GO'?", options: ["goed", "went", "going"], ans: "went", hint: "'GO' is an irregular verb! It changes completely to 'went'!" },
+            { q: "5. What is the past tense of 'EAT'?", options: ["eated", "ate", "eating"], ans: "ate", hint: "'EAT' is an irregular verb! It changes to 'ate'!" },
+            { q: "6. 'She danced gracefully.' - Which is the past verb?", options: ["She", "danced", "gracefully"], ans: "danced", hint: "'danced' is the action word ending in -ed!" },
+            { q: "7. Change to past: 'I walk home.'", options: ["I walked home.", "I walking home.", "I walks home."], ans: "I walked home.", hint: "Change the verb 'walk' to 'walked'!" },
+            { q: "8. Change to past: 'They buy food.'", options: ["They buyed food.", "They bought food.", "They buying food."], ans: "They bought food.", hint: "'buy' is an irregular verb that becomes 'bought'!" },
+            { q: "9. What is the past tense of 'STUDY'?", options: ["studied", "studyed", "studying"], ans: "studied", hint: "For words ending in consonant + y, change 'y' to '-ied'!" },
+            { q: "10. Yesterday, Maria _____ to the park.", options: ["go", "went", "goes"], ans: "went", hint: "The past tense of 'go' is 'went'!" }
+        ];
+
+        function renderFinalChallengeScreen(container) {
+            finalQuizIdx = 0;
+            finalQuizScore = 0;
+            finalQuizQuestionStarred = new Array(finalQuizData.length).fill(false);
+            renderFinalQuizQuestion(container);
+        }
+
+        function renderFinalQuizQuestion(container) {
+            const fq = finalQuizData[finalQuizIdx];
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Final Challenge ${finalQuizIdx + 1} / 10</span>
+                        <span class="text-xs font-extrabold text-amber-600">Score: ${finalQuizScore} / 10</span>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-3xl text-center shadow-xl space-y-2">
+                        <span class="text-amber-300 font-extrabold text-xs uppercase tracking-widest">Question ${finalQuizIdx + 1}</span>
+                        <h3 class="text-2xl font-black">${fq.q}</h3>
+                    </div>
+
+                    <!-- Answers Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${fq.options.map(opt => `
+                            <button onclick="submitFinalQuizChoice('${opt.replace(/'/g, "\\'")}')" class="bg-white hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-400 font-black text-slate-800 py-4 px-3 rounded-2xl text-lg shadow-sm transition active:scale-95">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitFinalQuizChoice(selected) {
+            const currentFQ = finalQuizData[finalQuizIdx];
+            if (selected === currentFQ.ans) {
+                if (!finalQuizQuestionStarred[finalQuizIdx]) {
+                    finalQuizQuestionStarred[finalQuizIdx] = true;
+                    finalQuizScore++;
+                    addStar(1);
+                }
+
+                showFeedbackModal(true, "Superb! 🌟", `"${selected}" is the correct past tense answer!`, () => {
+                    if (finalQuizIdx < finalQuizData.length - 1) {
+                        finalQuizIdx++;
+                        renderFinalQuizQuestion(document.getElementById('app-viewport'));
+                    } else {
+                        showFinalResults();
+                    }
+                });
+            } else {
+                showFeedbackModal(false, "Try Again! 💪", currentFQ.hint);
+            }
+        }
+
+        function showFinalResults() {
+            playSFX('victory');
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            let title = "";
+            let badge = "";
+            
+            if (finalQuizScore >= 9) {
+                title = "Past Tense Master! 🏆";
+                badge = "🥇 PERFECT SCORE!";
+            } else if (finalQuizScore >= 7) {
+                title = "Excellent! 🌟";
+                badge = "🥈 GREAT JOB!";
+            } else if (finalQuizScore >= 5) {
+                title = "Good Job! 👍";
+                badge = "🥉 KEEP GOING!";
+            } else {
+                title = "Keep Practising! 💪";
+                badge = "📚 ALMOST THERE!";
+            }
+
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = `
+                <div class="text-center space-y-6 py-4 animate-fade-in">
+                    <div class="inline-block bg-amber-100 border-2 border-amber-300 text-amber-800 px-4 py-1 rounded-full text-xs font-extrabold uppercase">
+                        ${badge}
+                    </div>
+
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-800">${title}</h2>
+
+                    <div class="w-32 h-32 mx-auto bg-amber-100 rounded-full border-4 border-amber-400 flex items-center justify-center text-4xl font-black text-amber-800 shadow-inner">
+                        ${finalQuizScore} / 10
+                    </div>
+
+                    <p class="text-slate-600 font-bold max-w-md mx-auto text-base">
+                        You collected <strong>${starScore}</strong> stars throughout the lesson!
+                    </p>
+
+                    <button onclick="nextStep()" class="bg-adventure-green hover:bg-emerald-600 text-white font-extrabold text-xl px-8 py-3.5 rounded-2xl shadow-lg transition active:scale-95">
+                        GO TO EXIT TICKET 🎟️
+                    </button>
+                </div>
+            `;
+        }
+
+        let exitTicketIdx = 0;
+        let exitTicketStarred = [];
+
+        const exitTicketQuestions = [
+            {
+                q: "What do we use the Past Tense for?",
+                options: [
+                    "A. Things happening now",
+                    "B. Things that already happened",
+                    "C. Things that will happen"
+                ],
+                ans: "B. Things that already happened",
+                hint: "Past tense tells us about actions that already took place in the past!"
+            },
+            {
+                q: "Change the verb into the Past Tense: PLAY → ?",
+                options: [
+                    "A. played",
+                    "B. playing",
+                    "C. plays"
+                ],
+                ans: "A. played",
+                hint: "For regular verbs like PLAY, add -ed to make it past tense!"
+            },
+            {
+                q: "Change the verb into the Past Tense: GO → ?",
+                options: [
+                    "A. goed",
+                    "B. went",
+                    "C. going"
+                ],
+                ans: "B. went",
+                hint: "GO is an irregular verb! It changes completely to WENT!"
+            }
+        ];
+
+        function renderExitTicketScreen(container) {
+            exitTicketIdx = 0;
+            exitTicketStarred = new Array(exitTicketQuestions.length).fill(false);
+            renderExitTicketQuestion(container);
+        }
+
+        function renderExitTicketQuestion(container) {
+            if (exitTicketIdx >= exitTicketQuestions.length) {
+                renderExitTicketCompletion(container);
+                return;
+            }
+
+            const eq = exitTicketQuestions[exitTicketIdx];
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold uppercase">Exit Ticket • Question ${exitTicketIdx + 1} of 3</span>
+                        <span class="text-xs font-bold text-slate-400">Interactive Reflection</span>
+                    </div>
+
+                    <!-- Exit Question Box -->
+                    <div class="bg-amber-50 border-2 border-amber-300 p-6 rounded-3xl text-center shadow-md space-y-2">
+                        <span class="text-amber-800 font-black text-xs uppercase tracking-wider">Question ${exitTicketIdx + 1}</span>
+                        <h3 class="text-2xl font-black text-slate-800">${eq.q}</h3>
+                    </div>
+
+                    <!-- Clickable Options -->
+                    <div class="space-y-3">
+                        ${eq.options.map(opt => `
+                            <button onclick="handleExitTicketChoice('${opt.replace(/'/g, "\\'")}')" class="w-full bg-white hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-400 text-slate-800 font-black p-4 rounded-2xl text-lg text-left shadow-sm transition active:scale-95 flex items-center justify-between">
+                                <span>${opt}</span>
+                                <i class="fa-solid fa-circle-chevron-right text-slate-300"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleExitTicketChoice(selected) {
+            const eq = exitTicketQuestions[exitTicketIdx];
+            if (selected === eq.ans) {
+                if (!exitTicketStarred[exitTicketIdx]) {
+                    exitTicketStarred[exitTicketIdx] = true;
+                    addStar(1);
+                }
+                showFeedbackModal(true, "Correct! 🎉", "Great job answering the exit ticket question!", () => {
+                    exitTicketIdx++;
+                    renderExitTicketQuestion(document.getElementById('app-viewport'));
+                });
+            } else {
+                showFeedbackModal(false, "Try Again! 💪", eq.hint);
+            }
+        }
+
+        function renderExitTicketCompletion(container) {
+            playSFX('victory');
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in text-center py-2">
+                    <div class="inline-block bg-amber-100 border-2 border-amber-300 text-amber-800 px-4 py-1 rounded-full text-xs font-black uppercase tracking-wider">
+                        🎉 LESSON COMPLETE!
+                    </div>
+
+                    <div class="space-y-2">
+                        <h2 class="text-3xl sm:text-4xl font-black text-slate-800">Fantastic Work! 🎉</h2>
+                        <p class="text-xl sm:text-2xl font-black text-adventure-blue">You are now a PAST TENSE MASTER! 🏆</p>
+                        <p class="text-base font-bold text-slate-500">Your lesson is complete!</p>
+                    </div>
+
+                    <!-- Stars Summary -->
+                    <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl max-w-xs mx-auto flex items-center justify-center gap-3 shadow-sm">
+                        <span class="text-3xl">🌟</span>
+                        <div>
+                            <span class="block text-xs font-bold text-amber-800 uppercase">Total Stars Earned</span>
+                            <span class="text-2xl font-black text-amber-900">${starScore} Stars</span>
+                        </div>
+                    </div>
+
+                    <!-- Digital Badge / SK Puteri Certificate Frame -->
+                    <div class="bg-white border-4 border-amber-400 p-6 rounded-3xl text-center space-y-3 shadow-xl relative overflow-hidden max-w-lg mx-auto">
+                        <div class="absolute top-2 right-2 text-4xl opacity-20">🏆</div>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Official Completion Certificate</span>
+                        <h3 class="text-2xl font-black text-adventure-blue">PAST TENSE MASTER 🏆</h3>
+                        <p class="text-sm font-bold text-slate-600">Awarded to Year 3 Pupil</p>
+
+                        <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-500">
+                            <span>SK Puteri • Year 3 English</span>
+                            <span>By Teacher Maria A. Rachman</span>
+                        </div>
+                    </div>
+
+                    <!-- Restart Button -->
+                    <div class="pt-2">
+                        <button onclick="restartLesson()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-black px-6 py-3 rounded-2xl transition active:scale-95 text-sm">
+                            🔄 RESTART ADVENTURE
+                        </button>
+                    </div>
+                </div>
+            `;
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
+        }
+
+        function restartLesson() {
+            currentStep = 0;
+            starScore = 0;
+            document.getElementById('star-count').textContent = '0';
+            updateProgressUI();
+        }
+
+        // Initialize application on page load
+        window.onload = function() {
+            updateProgressUI();
+        };
+    </script>
+</body>
+</html>
